@@ -2,7 +2,7 @@
 本项目用于将花园接入OneBot生态，以使用OneBot生态内的其他机器人程序
 
 ## ToDo
-- [ ] 基础消息协议(可以直接照着YakumoRan的做)
+- [x] ~~基础消息协议(可以直接照着YakumoRan的做)~~
 - [ ] 正向HTTP
 - [ ] 反向HTTP
 - [ ] 正向WebSocket

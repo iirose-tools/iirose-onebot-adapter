@@ -1,3 +1,5 @@
+import { decode } from 'html-entities'
+
 export interface SwitchRoom {
   timestamp: number,
   avatar: string,
@@ -17,7 +19,7 @@ export default (message: string): [string, SwitchRoom][] | undefined => {
         const msg = {
           timestamp: Number(tmp[0]),
           avatar: tmp[1],
-          username: tmp[2],
+          username: decode(tmp[2]),
           color: tmp[5],
           uid: tmp[8],
           title: tmp[9] === "'108" ? '花瓣' : tmp[9],
