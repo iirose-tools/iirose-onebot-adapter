@@ -1,6 +1,10 @@
 # 蔷薇花园OneBot网关
 本项目用于将花园接入OneBot生态，以使用OneBot生态内的其他机器人程序
 
+此项目的最终目标是尽可能完整的实现OneBot协议，尽可能多的兼容更多基于OneBot协议的应用，让花园的Bot也可以加入OneBot社区
+
+目前主要开发目标是能让koishi和nonebot能在此项目的OneBot协议上跑起来~
+
 ## ToDo
 - [x] ~~基础消息协议(可以直接照着YakumoRan的做)~~
 - [ ] 正向HTTP
