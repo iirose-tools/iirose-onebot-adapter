@@ -6,11 +6,13 @@ import DecodePrivateMessage from './decoders/PrivateMessage'
 
 import EncodePrivateMessage from './encoders/PrivateMessage'
 import EncodePublicMessage from './encoders/PublicMessage'
+import Login from './encoders/Login'
 
 export default {
   encode: {
     PrivateMessage: EncodePrivateMessage,
-    PublicMessage: EncodePublicMessage
+    PublicMessage: EncodePublicMessage,
+    Login: Login
   },
   decode: (packet: string) => {
     const funcs = [

@@ -75,6 +75,7 @@ server.on('connection', (client, req) => {
     globalEvent.emit('message', data, emitter)
   })
 
+  // 心跳包
   if (getConfig("server.v12.ws.heartbeat.enable")) {
     const interval = getConfig("server.v12.ws.heartbeat.interval")
 
