@@ -47,26 +47,28 @@
     }
     // ... 可以添加更多账号
   ],
-  // 兼容性配置
   "compatibility": {
-    "files": {
-      // 是否主动下载消息中的文件，若为true则会主动下载消息中的文件并发送file_id给客户端，若为false则会发送文件的url给客户端
-      "download_all_files": false,
-      // 文件ID映射，启用后会将文件名和文件ID进行映射，并记录在本地，此选项不会下载文件，但仍然会创建文件用于记录映射信息
-      "file_id_index": true
-    },
     "events": {
+      // 下游客户端获取到的机器人信息
       "self": {
-        // 下游客户端获取到的机器人信息
         "platform": "iirose",
-        "user_id": 0
+        "user_id": 15412469511
       },
       // 是否广播用户 进入/离开/切换 房间的事件（部分针对QQ开发的机器人程序可能会响应这些事件发送过长的消息）
       "enable_user_events": true
     },
     "actions": {
       // 当下游客户端调用无法实现或不兼容的API时是否返回成功（例如：群文件。若为false则会返回服务端不支持这个操作，为true时会伪造虚假的数据返回给客户端）
-      "always_return_success": true
+      "always_return_success": true,
+      // 允许下游客户端调用离开群组的API，对应的机器人会主动下线
+      "allow_leave_room": false
+    }
+  },
+  "app": {
+    // 机器人所有者信息
+    "owner": {
+      "name": "xxx",
+      "uid": "xxx"
     }
   }
 }
