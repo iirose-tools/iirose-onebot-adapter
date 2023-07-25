@@ -6,7 +6,7 @@ export default (username: string, password: string, room: string) => {
   const data = {
     r: room,
     n: username,
-    p: password,
+    p: md5(password),
     st: 'n',
     mo: '',
     mb: '',

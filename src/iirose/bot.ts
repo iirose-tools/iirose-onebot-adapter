@@ -113,15 +113,15 @@ export default class Bot extends EventEmitter {
     }
   }
 
-  public sendPrivateMessage(uid: string, message: string) {
+  public sendPrivateMessage(uid: string, message: string, id: string) {
     if (!this.ws) return
-    const succ = this.ws.send(packets.encode.PrivateMessage(uid, message, this.account.color));
+    const succ = this.ws.send(packets.encode.PrivateMessage(uid, message, this.account.color, id));
     if (!succ) throw new Error('Failed to send private message');
   }
 
-  public sendPublicMessage(message: string) {
+  public sendPublicMessage(message: string, id: string) {
     if (!this.ws) return
-    const succ = this.ws.send(packets.encode.PublicMessage(message, this.account.color));
+    const succ = this.ws.send(packets.encode.PublicMessage(message, this.account.color, id));
     if (!succ) throw new Error('Failed to send public message');
   }
 }
