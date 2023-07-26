@@ -7,11 +7,13 @@ import DecodePrivateMessage from './decoders/PrivateMessage'
 import EncodePrivateMessage from './encoders/PrivateMessage'
 import EncodePublicMessage from './encoders/PublicMessage'
 import Login from './encoders/Login'
+import DeleteMessage from './encoders/DeleteMessage'
 
 export default {
   encode: {
     PrivateMessage: EncodePrivateMessage,
     PublicMessage: EncodePublicMessage,
+    DeleteMessage: DeleteMessage,
     Login: Login
   },
   decode: (packet: string) => {

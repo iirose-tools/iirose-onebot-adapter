@@ -124,4 +124,10 @@ export default class Bot extends EventEmitter {
     const succ = this.ws.send(packets.encode.PublicMessage(message, this.account.color, id));
     if (!succ) throw new Error('Failed to send public message');
   }
+
+  public deleteMessage (id: string) {
+    if (!this.ws) return
+    const succ = this.ws.send(packets.encode.DeleteMessage(id));
+    if (!succ) throw new Error('Failed to delete message');
+  }
 }

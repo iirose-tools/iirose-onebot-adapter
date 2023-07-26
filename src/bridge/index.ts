@@ -2,6 +2,7 @@ import Bot from "../iirose/bot";
 import * as OneBot from '../onebot'
 import { getConfig } from "../core/config";
 import * as MessageProcessor from './message'
+import id from "../core/id";
 
 const bots: Bot[] = []
 
@@ -9,6 +10,25 @@ getConfig('accounts').forEach((account: any, index: number) => {
   const bot = new Bot(account)
   bots[index] = bot
   bots[index].index = index
+
+  bot.on('PublicMessage', msg => {
+    OneBot.boardcast(JSON.stringify({
+      "id": id(),
+      "self": getConfig('compatibility.events.self'),
+      "time": Date.now() / 1000,
+      "type": "message",
+      "detail_type": "group",
+      "sub_type": "",
+      "message_id": msg.messageId,
+      "message": [
+        ...MessageProcessor.str2msg(msg.message)
+        // 处理回复消息
+      ],
+      "alt_message": msg.message,
+      "group_id": index.toString(),
+      "user_id": msg.uid
+    }))
+  })
 })
 
 OneBot.eventPipe.on('request', (action, params, callback) => {
@@ -38,10 +58,16 @@ OneBot.eventPipe.on('request', (action, params, callback) => {
 
       const msgStr = MessageProcessor.msg2str(params.message)
       bot.sendPublicMessage(msgStr, msgId)
+
+      callback('ok', 0, {
+        time: Date.now() / 1000,
+        message_id: `${id}:${msgId}`
+      })
     } else if (detail_type === 'private') {
       // 发送私聊消息
       const uid = params.user_id as string
       const bot = bots.sort(() => Math.random() - 0.5)[0]
+      const botId = bot.index
       if (!bot) {
         callback('failed', 35001, null, 'Logic Error: bot not found')
         return
@@ -49,13 +75,22 @@ OneBot.eventPipe.on('request', (action, params, callback) => {
 
       const msgStr = MessageProcessor.msg2str(params.message)
       bot.sendPrivateMessage(uid, msgStr, msgId)
-    }
 
-    callback('ok', 0, {
-      time: Date.now() / 1000,
-      message_id: msgId
-    })
+      callback('ok', 0, {
+        time: Date.now() / 1000,
+        message_id: `${botId}:${msgId}`
+      })
+    }
   } else if (action === 'delete_message') {
-    // TODO: 撤回消息
+    // 撤回消息
+    const id = params.message_id as string
+    const index = id.split(':')[0]
+    const bot = bots[parseInt(index)]
+
+    const msgId = id.split(':')[1]
+
+    bot.deleteMessage(msgId)
+
+    callback('ok', 0, null)
   }
 })
