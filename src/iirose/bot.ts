@@ -9,6 +9,7 @@ import { PrivateMessage } from "./packets/decoders/PrivateMessage";
 import { PublicMessage } from "./packets/decoders/PublicMessage";
 
 import logger from "../core/logger";
+import { UserProfileCallback } from "./packets/decoders/ProfileCallback";
 
 interface IEmissions {
   JoinRoom: (data: JoinRoom) => void;
@@ -36,7 +37,9 @@ export interface Account {
 
 export default class Bot extends EventEmitter {
   private ws?: WebSocket;
+  // @ts-ignore
   private _untypedOn = this.on
+  // @ts-ignore
   private _untypedEmit = this.emit
   public on = <K extends keyof IEmissions>(event: K, listener: IEmissions[K]): this => this._untypedOn(event, listener)
   public emit = <K extends keyof IEmissions>(event: K, ...args: Parameters<IEmissions[K]>): boolean => this._untypedEmit(event, ...args)
@@ -129,5 +132,34 @@ export default class Bot extends EventEmitter {
     if (!this.ws) return
     const succ = this.ws.send(packets.encode.DeleteMessage(id));
     if (!succ) throw new Error('Failed to delete message');
+  }
+
+  private callApiWithCallback (data: string, eventName: string) {
+    return new Promise((resolve, reject) => {
+      if (!this.ws) return
+      let end = false
+      const timeout = setTimeout(() => {
+        reject('timeout')
+      }, 5000)
+
+      this.once(eventName, (data: any) => {
+        if (end) return
+        resolve(data)
+
+        end = true
+        clearTimeout(timeout)
+      })
+
+      this.ws.send(data)
+    })
+  }
+
+  /**
+   * @description 获取用户资料
+   * @param username 用户名
+   * @returns 
+   */
+  public getUserProfile (username: string) {
+    return this.callApiWithCallback(packets.encode.GetUserProfile(username), 'UserProfileCallback') as Promise<UserProfileCallback>
   }
 }

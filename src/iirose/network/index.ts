@@ -2,12 +2,20 @@ import ws from 'ws'
 import pako from 'pako'
 import getLogger from '../../core/logger'
 import EventEmitter from 'events'
+import { Agent } from 'https'
 
 interface IEmissions {
   open: () => void
   close: () => void
   error: (error: ws.ErrorEvent) => void
   message: (data: string) => void
+}
+
+const options = {
+  agent: new Agent({
+    rejectUnauthorized: false,
+    keepAlive: true,
+  })
 }
 
 export class WebSocket extends EventEmitter {
@@ -17,10 +25,11 @@ export class WebSocket extends EventEmitter {
   private _untypedEmit = this.emit
   public on = <K extends keyof IEmissions>(event: K, listener: IEmissions[K]): this => this._untypedOn(event, listener)
   public emit = <K extends keyof IEmissions>(event: K, ...args: Parameters<IEmissions[K]>): boolean => this._untypedEmit(event, ...args)
+  private timer?: NodeJS.Timeout
 
   constructor(url: string) {
     super()
-    this.socket = new ws(url)
+    this.socket = new ws(url, options)
     this.init()
   }
 
@@ -40,6 +49,11 @@ export class WebSocket extends EventEmitter {
   private openHandler() {
     this.logger.info('WebSocket connected')
     this.emit('open')
+    this.timer = setInterval(() => {
+      if (this.isOpen()) {
+        this.socket.send('')
+      }
+    }, 60e3)
   }
 
   private packetHandler(data: ws.MessageEvent) {
@@ -52,14 +66,15 @@ export class WebSocket extends EventEmitter {
       const packet = pako.inflate(arrayBuf.slice(1))
       this.messageHandler(packet.toString())
     } else {
-      this.messageHandler(arrayBuf.toString())
+      this.messageHandler(Buffer.from(arrayBuf).toString())
     }
   }
 
   private closeHandler() {
+    clearInterval(this.timer!)
     this.emit('close')
     this.logger.info('WebSocket closed, reconnecting...')
-    this.socket = new ws(this.socket.url)
+    this.socket = new ws(this.socket.url, options)
     this.init()
   }
 

@@ -3,8 +3,9 @@ import * as OneBot from '../onebot'
 import { getConfig } from "../core/config";
 import * as MessageProcessor from './message'
 import id from "../core/id";
+import Users from "./Users";
 
-const bots: Bot[] = []
+export const bots: Bot[] = []
 
 getConfig('accounts').forEach((account: any, index: number) => {
   const bot = new Bot(account)
@@ -12,6 +13,16 @@ getConfig('accounts').forEach((account: any, index: number) => {
   bots[index].index = index
 
   bot.on('PublicMessage', msg => {
+    const username = msg.username
+    const uid = msg.uid
+
+    const user = Users.get({ uid, username })
+    if (!user) {
+      Users.set({ uid, username })
+    } else {
+      Users.update({ uid, username })
+    }
+
     OneBot.boardcast(JSON.stringify({
       "id": id(),
       "self": getConfig('compatibility.events.self'),
@@ -22,7 +33,7 @@ getConfig('accounts').forEach((account: any, index: number) => {
       "message_id": msg.messageId,
       "message": [
         ...MessageProcessor.str2msg(msg.message)
-        // 处理回复消息
+        // TODO: 处理回复消息
       ],
       "alt_message": msg.message,
       "group_id": index.toString(),
@@ -43,6 +54,22 @@ OneBot.eventPipe.on('request', (action, params, callback) => {
         online: !hasOffline,
       }]
     })
+  } else if (action === 'get_user_info') {
+    const user = Users.get({ uid: params.user_id as string })
+    if (!user) {
+      return callback('failed', 35001, null, 'User not found')
+    }
+  } else if (action === 'get_friend_list') {
+    const list = Users.getAll().map(item => {
+      return {
+        user_id: item.uid,
+        user_name: item.username,
+        user_displayname: "",
+        user_remark: item.username,
+      }
+    })
+
+    callback('ok', 0, list, 'success')
   } else if (action === 'send_message') {
     // 发送消息
     const detail_type = params.detail_type

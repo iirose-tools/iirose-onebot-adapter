@@ -4,6 +4,7 @@ import { EventEmitter } from 'ws'
 import id from '../../../core/id'
 import { version } from '../../../core/version'
 import { getLogger } from 'log4js'
+import logger from '../../../core/logger'
 
 const server = new Server({
   port: getConfig('server.v12.ws.port'),
@@ -60,6 +61,8 @@ server.on('connection', (client, req) => {
     return
   }
 
+  logger(`OneBot[v12][WS]`).info(`New connection from ${req.socket.remoteAddress}`)
+
   const pusher = createEventPusher(client)
   
   pusher('meta', 'connect', "", {
@@ -72,7 +75,7 @@ server.on('connection', (client, req) => {
 
   client.on('message', (data) => {
     const emitter = createCallbackEmitter(client)
-    globalEvent.emit('message', data, emitter)
+    globalEvent.emit('message', JSON.parse(data.toString()), emitter)
   })
 
   // 心跳包

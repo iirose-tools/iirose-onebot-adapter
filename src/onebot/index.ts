@@ -1,6 +1,8 @@
 import { EventEmitter } from 'ws'
 import { version } from '../core/version'
 import * as v12 from './v12'
+import { getConfig } from '../core/config'
+import logger from '../core/logger'
 
 // TODO: 写上支持的事件
 export const supportedActions: string[] = [
@@ -35,6 +37,8 @@ v12.globalEvent.on('message', (data, emitter) => {
   const params = data.params
   const echo = data.echo
 
+  logger('OneBot[EventPipe]').debug(`Received action: ${action} with params: ${JSON.stringify(params)}`)
+
   const callback = (status: 'ok' | 'failed', retcode: number, data?: any, message?: string) => {
     emitter(status, retcode, data, message, echo || null)
   }
@@ -56,6 +60,15 @@ v12.globalEvent.on('message', (data, emitter) => {
         onebot_version: "12"
       })
 
+      break;
+    case 'get_self_info':
+      // 获取机器人信息
+      callback('ok', 0, {
+        user_id: getConfig('compatibility.events.self.user_id'),
+        user_name: 'iirose-onebot-adapter',
+        user_displayname: 'iirose-onebot-adapter',
+        user_remark: 'iirose-onebot-adapter',
+      })
       break;
     default:
       // 完全没有实现的功能

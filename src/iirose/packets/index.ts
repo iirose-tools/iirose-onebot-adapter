@@ -3,18 +3,21 @@ import DecodeLeaveRoom from './decoders/LeaveRoom'
 import DecodeSwitchRoom from './decoders/SwitchRoom'
 import DecodePublicMessage from './decoders/PublicMessage'
 import DecodePrivateMessage from './decoders/PrivateMessage'
+import DecodeUserProfile from './decoders/ProfileCallback'
 
 import EncodePrivateMessage from './encoders/PrivateMessage'
 import EncodePublicMessage from './encoders/PublicMessage'
 import Login from './encoders/Login'
 import DeleteMessage from './encoders/DeleteMessage'
+import GetUserProfile from './encoders/GetUserProfile'
 
 export default {
   encode: {
     PrivateMessage: EncodePrivateMessage,
     PublicMessage: EncodePublicMessage,
     DeleteMessage: DeleteMessage,
-    Login: Login
+    Login: Login,
+    GetUserProfile: GetUserProfile
   },
   decode: (packet: string) => {
     const funcs = [
@@ -22,7 +25,8 @@ export default {
       DecodeLeaveRoom,
       DecodeSwitchRoom,
       DecodePublicMessage,
-      DecodePrivateMessage
+      DecodePrivateMessage,
+      DecodeUserProfile
     ]
 
     for (const func of funcs) {

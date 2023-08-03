@@ -1,4 +1,5 @@
 import log4js from 'log4js';
+import { getConfig } from './config';
 
 const config = {
   appenders: {
@@ -16,7 +17,7 @@ const config = {
   categories: {
     default: {
       appenders: ['console', 'file'],
-      level: process.env.NODE_ENV === 'development' ? 'debug' : 'info',
+      level: getConfig('app.logger.level')
     },
   },
 };
